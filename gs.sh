@@ -75,14 +75,6 @@ sudo bash -c 'echo "zone \"meudominio.com\" {
 echo "Reiniciando o Bind9 para aplicar as configurações..."
 sudo systemctl restart bind9
 
-# --- Backup de Snapshot Completo do Sistema ---
-echo "Criando snapshot do sistema para backup completo..."
-# Exemplo para criar um snapshot em ambientes de nuvem ou em sistemas locais que suportam snapshots. Este comando pode variar dependendo do sistema.
-# Este comando é ilustrativo e pode não ser executável em todos os ambientes.
-echo "Para realizar um snapshot completo, use a ferramenta de snapshot da sua VM ou do provedor de nuvem."
-echo "Snapshot criado com sucesso."
-# --- Fim do Backup de Snapshot Completo do Sistema ---
-
 #configuração de rede para IP estático
 echo "Configurando IP estático..."
 sudo bash -c 'cat > /etc/network/interfaces <<EOF
