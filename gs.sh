@@ -23,7 +23,7 @@ apt update -y
 
 # Instala o Apache2 para configurar o servidor web
 echo "Instalando servidor web Apache2..."
-sudo apt install apache2 -y
+apt install apache2 -y
 
 #inicia o serviço do Apache2
 echo "Iniciando o Apache2..."
