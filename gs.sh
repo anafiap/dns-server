@@ -1,52 +1,37 @@
 #!/bin/bash
 
-read -p "Deseja iniciar a instalação do servidor web e configurar o DNS? (s/n): " confirm
+read -p "iniciar a instalação do servidor web e configurar o dns? (s/n): " confirm
 if [[ "$confirm" != "s" ]]; then
-    echo "Instalação cancelada."
+    echo "instalação cancelada."
     exit 1
 fi
 
-#backup config files
-echo "Realizando backup dos arquivos de configuração antes da instalação..."
-
-#backup dos arquivos de configuração de rede, bind e apache
+echo "realizando backup"
 cp /etc/network/interfaces /etc/network/interfaces.bak
 cp /etc/bind/named.conf.local /etc/bind/named.conf.local.bak
 cp -r /etc/apache2 /etc/apache2.bak
-echo "Backup dos arquivos de configuração concluído."
-
-#fim do backup
-
-#atualiza o sistema e instala os pacotes 
-echo "Atualizando pacotes do sistema..."
+echo "backup concluído."
+echo "atualizando pacotes"
 apt update -y
 
-# Instala o Apache2 para configurar o servidor web
-echo "Instalando servidor web Apache2..."
+echo "instalando apache"
 apt install apache2 -y
 
-#inicia o serviço do Apache2
-echo "Iniciando o Apache2..."
 systemctl start apache2
 systemctl enable apache2
 
-#baixa o template HTML antes  de alteraras configurações de rede
-echo "Baixando template HTML..."
-wget -q -O /var/www/html/index.html https://html5up.net/uploads/demos/dopetrope/index.html
+echo "baixando template"
+wget -q -O /var/www/html/index.html (url)
 
-#altera as permissões do diretório e arquivos do Apache2
-echo "Ajustando permissões para o Apache2..."
+echo "ajustando permissões"
 chown -R www-data:www-data /var/www/html
 chmod -R 755 /var/www/html
 
-#instala o bind9 para configuração de DNS
-echo "Instalando servidor DNS bind9..."
+echo "instalando bind"
 apt install bind9 -y
 
-#configura o Bind9 para o domínio fictício "meudominio.com"
-echo "Configurando Bind9 para o domínio 'meudominio.com'..."
+echo "configurando"
 
-#cria o arquivo de zona para o domínio
 bash -c 'cat > /etc/bind/db.meudominio <<EOF
 ;
 ; BIND data file for local loopback interface
@@ -65,18 +50,17 @@ ns1     IN      A       192.168.1.100
 www     IN      A       192.168.1.100
 EOF'
 
-#configura o arquivo de zona no BIND
+
 bash -c 'echo "zone \"meudominio.com\" {
     type master;
     file \"/etc/bind/db.meudominio\"; 
 };" >> /etc/bind/named.conf.local'
 
-# reinicia o serviço do bind9 para aplicar configurações
-echo "Reiniciando o Bind9 para aplicar as configurações..."
+
+echo "reiniciando o bind para aplicar as configurações"
 systemctl restart bind9
 
-#configuração de rede para IP estático
-echo "Configurando IP estático..."
+echo "configurando ip"
 bash -c 'cat > /etc/network/interfaces <<EOF
 auto enp0s8
 iface enp0s8 inet static
@@ -86,22 +70,18 @@ iface enp0s8 inet static
     dns-nameservers 192.168.1.100
 EOF'
 
-#reinicia a interface de rede para aplicar as mudanças
-echo "Aplicando nova configuração de rede..."
+echo "aplicando nova configuração de rede"
 systemctl restart networking
 ifdown enp0s3 --force && sudo ifup enp0s3
 
-# --- Backup Automático de Diretórios Web e DNS ---
-echo "Realizando backup automático dos diretórios web e DNS..."
+echo "realizando backup automático dos diretórios"
 
-#cria um diretório de backup baseado na data atual e copia os arquivos de configuração
 backup_dir="/backups/$(date +%F)"
 mkdir -p "$backup_dir"
 cp -r /var/www/html "$backup_dir"
 cp -r /etc/bind "$backup_dir"
-echo "Backup automático concluído. Arquivos salvos em $backup_dir."
-# --- Fim do Backup Automático de Diretórios Web e DNS ---
+echo "backup automático concluído. (arquivos salvos em $backup_dir)"
 
-#exibe mensagem de conclusão
-echo "Configuração concluída! O servidor web e DNS foram configurados com sucesso."
-echo "Acesse http://192.168.1.100 ou http://www.meudominio.com para verificar o template."
+
+echo "configuração concluída :)"
+echo "acesse http://192.168.1.100 ou http://www.meudominio.com para verificar o template."
